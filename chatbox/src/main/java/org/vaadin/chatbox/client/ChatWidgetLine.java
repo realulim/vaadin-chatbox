@@ -1,7 +1,5 @@
 package org.vaadin.chatbox.client;
 
-import java.util.Date;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.shared.DateTimeFormat;
@@ -20,13 +18,14 @@ public final class ChatWidgetLine extends FlowPanel {
     private static final RegExp URL_RE = RegExp.compile(
             "(\\b(?:http(?:s)?://|www\\.[^ .]+\\.)[^ ]+)", "g");
 
+    private final DateTimeFormat dtf = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
     private final ChatBoxWidget parent;
     private final boolean clickableUsers = true;
 
     public ChatWidgetLine(ChatLine line, ChatBoxWidget parent) {
         this.parent = parent;
         if (line.getUser() != null) {
-            add(createUserLabel(line.getUser()));
+            add(createUserLabel(line));
             add(createLabel(": ", line.getUser().getInnerStyle()));
         }
         String style = (line.getUser() == null) ? "infotext" : "chattext";
@@ -106,9 +105,9 @@ public final class ChatWidgetLine extends FlowPanel {
         return label;
     }
 
-    private InlineLabel createUserLabel(final ChatUser user) {
-        DateTimeFormat dtf = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
-        InlineLabel label = new InlineLabel("[" + dtf.format(new Date()) + "] " + user.getName());
+    private InlineLabel createUserLabel(final ChatLine line) {
+        final ChatUser user = line.getUser();
+        InlineLabel label = new InlineLabel("[" + dtf.format(line.getTimestamp()) + "] " + user.getName());
         label.setStylePrimaryName(user.getInnerStyle());
         if (clickableUsers) {
             label.addClickHandler(new ClickHandler() {

@@ -1,46 +1,59 @@
 package org.vaadin.chatbox.client;
 
+import java.util.Date;
+
 /**
  * One line of chat.
  */
 public class ChatLine {
 
-	private final String text;
-	private final ChatUser user;
-	
-	public ChatLine(String text) {
-		this(text, null);
-	}
+    private final Date timestamp;
+    private final ChatUser user;
+    private final String text;
 
-	public ChatLine(String text, ChatUser user) {
-		this.text = text;
-		this.user = user;
-	}
+    public ChatLine(String text) {
+        this(new Date(), null, text);
+    }
 
-	public String getText() {
-		return text;
-	}
+    public ChatLine(ChatUser user, String text) {
+        this(new Date(), user, text);
+    }
 
-	public ChatUser getUser() {
-		return user;
-	}
+    public ChatLine(Date timestamp, ChatUser user, String text) {
+        this.timestamp = timestamp;
+        this.user = user;
+        this.text = text;
+    }
 
-	@Override
-	public String toString() {
-		return (user == null ? "" : (user.getName() + ": ")) + text;
-	}
+    public Date getTimestamp() {
+        return timestamp;
+    }
 
-	@Override
-	public boolean equals(Object other) {
-		if (other instanceof ChatLine) {
-			ChatLine ocl = (ChatLine) other;
-			return user==null ? ocl.user==null : user.equals(ocl.user) && ocl.text.equals(text);
-		}
-		return false;
-	}
-	
-	@Override
-	public int hashCode() {
-		return text.hashCode();
-	}
+    public ChatUser getUser() {
+        return user;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    @Override
+    public String toString() {
+        return (user == null ? "" : (user.getName() + ": ")) + text;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof ChatLine) {
+            ChatLine ocl = (ChatLine) other;
+            return user == null ? ocl.user == null : user.equals(ocl.user) && ocl.text.equals(text);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return text.hashCode();
+    }
+
 }

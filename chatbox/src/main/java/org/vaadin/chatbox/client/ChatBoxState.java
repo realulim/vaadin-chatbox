@@ -47,7 +47,7 @@ public class ChatBoxState extends com.vaadin.shared.AbstractComponentState {
         }
 
         public static ChatLine convert(Line li) {
-            return new ChatLine(li.text, User.convert(li.user));
+            return new ChatLine(User.convert(li.user), li.text);
         }
     }
 
