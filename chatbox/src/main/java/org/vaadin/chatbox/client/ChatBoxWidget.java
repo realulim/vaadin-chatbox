@@ -184,7 +184,6 @@ public class ChatBoxWidget extends DockLayoutPanel {
     private void addLiveLine(String msg) {
         ChatLine line = new ChatLine(user, msg);
         addLiveLine(line);
-
     }
 
     public void setShowSendButton(boolean show) {

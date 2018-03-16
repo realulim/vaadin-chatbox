@@ -1,6 +1,7 @@
 package org.vaadin.chatbox.client;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import com.vaadin.shared.annotations.DelegateToWidget;
 
@@ -36,18 +37,20 @@ public class ChatBoxState extends com.vaadin.shared.AbstractComponentState {
 
     public static class Line implements Serializable {
 
+        public Date ts;
         public User user;
         public String text;
 
         public static Line convert(ChatLine cl) {
             Line li = new Line();
+            li.ts = cl.getTimestamp();
             li.user = User.convert(cl.getUser());
             li.text = cl.getText();
             return li;
         }
 
         public static ChatLine convert(Line li) {
-            return new ChatLine(User.convert(li.user), li.text);
+            return new ChatLine(li.ts, User.convert(li.user), li.text);
         }
     }
 
