@@ -1,0 +1,1 @@
+$wnd.org_vaadin_chatbox_demo_DemoWidgetSet.runAsyncCallback2('Xjb(1909,1,Sne);_.Zb=function QBc(){sfc((!kfc&&(kfc=new Afc),kfc),this.a.d)};qhe(Eh)(2);\n//# sourceURL=org.vaadin.chatbox.demo.DemoWidgetSet-2.js\n')
