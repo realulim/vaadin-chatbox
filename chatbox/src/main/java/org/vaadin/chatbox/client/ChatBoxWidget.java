@@ -26,304 +26,320 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class ChatBoxWidget extends DockLayoutPanel {
 
-	public interface TextInputListener {
-		public void liveLineAdded(ChatLine line);
-	}
+    public interface TextInputListener {
 
-	private LinkedList<TextInputListener> tiListeners = new LinkedList<TextInputListener>();
+        public void liveLineAdded(ChatLine line);
+    }
 
-	private ArrayList<String> myHistory = new ArrayList<String>();
-	private int myHistoryAt = 0;
+    private final LinkedList<TextInputListener> tiListeners = new LinkedList<TextInputListener>();
 
-	public void addTextInputListener(TextInputListener li) {
-		tiListeners.add(li);
-	}
+    private ArrayList<String> myHistory = new ArrayList<String>();
+    private int myHistoryAt = 0;
 
-	public interface ChatCLickListener {
-		public void userClicked(String userId);
+    public void addTextInputListener(TextInputListener li) {
+        tiListeners.add(li);
+    }
 
-		public void itemClicked(String itemId);
-	}
+    public interface ChatCLickListener {
 
-	private LinkedList<ChatCLickListener> ccListeners = new LinkedList<ChatCLickListener>();
+        public void userClicked(String userId);
 
-	public void addListener(ChatCLickListener li) {
-		ccListeners.add(li);
-	}
+        public void itemClicked(String itemId);
+    }
 
-	private static final String CLASSNAME = "ChatBox";
+    private final LinkedList<ChatCLickListener> ccListeners = new LinkedList<ChatCLickListener>();
 
-	private ScrollPanel chatPanel = new ScrollPanel();
-	{
-		chatPanel.setStylePrimaryName("ChatPanel");
-	}
-	private VerticalPanel vp = new VerticalPanel();
-	{
-		chatPanel.add(vp);
-	}
+    public void addListener(ChatCLickListener li) {
+        ccListeners.add(li);
+    }
 
-	private FlexTable chatTable = new FlexTable();
-	{
-		chatTable.setStylePrimaryName("FrozenLines");
-		vp.add(chatTable);
-	}
+    private static final String CLASSNAME = "ChatBox";
 
-	private FlexTable liveTable = new FlexTable();
-	{
-		liveTable.setStylePrimaryName("LiveLines");
-		vp.add(liveTable);
-	}
+    private final ScrollPanel chatPanel = new ScrollPanel();
 
-	private HorizontalPanel inputPanel = null;
+    {
+        chatPanel.setStylePrimaryName("ChatPanel");
+    }
+    private final VerticalPanel vp = new VerticalPanel();
 
-	private InlineLabel nameLabel = new InlineLabel();
-	{
-		nameLabel.setWordWrap(false);
-	}
+    {
+        chatPanel.add(vp);
+    }
 
-	private TextBox chatInput = new TextBox();
-	{
-		// Up and down arrows to browse what I've written earlier.
-		chatInput.addKeyDownHandler(new KeyDownHandler() {
+    private final FlexTable chatTable = new FlexTable();
 
-			public void onKeyDown(KeyDownEvent event) {
-				if (event.isUpArrow()) {
-					if (myHistoryAt > 0) {
-						String text = chatInput.getText();
-						if (!text.isEmpty()) {
-							if (myHistoryAt == myHistory.size()) {
-								myHistory.add(text);
-							} else {
-								myHistory.set(myHistoryAt, text);
-							}
-						}
+    {
+        chatTable.setStylePrimaryName("FrozenLines");
+        vp.add(chatTable);
+    }
 
-						String msg = myHistory.get(--myHistoryAt);
-						chatInput.setText(msg);
-						chatInput.setCursorPos(msg.length());
-					}
-					event.preventDefault();
+    private final FlexTable liveTable = new FlexTable();
 
-				} else if (event.isDownArrow()) {
-					if (myHistoryAt < myHistory.size() - 1) {
-						myHistory.set(myHistoryAt, chatInput.getText());
-						String msg = myHistory.get(++myHistoryAt);
-						chatInput.setText(msg);
-						chatInput.setCursorPos(msg.length());
-					} else if (myHistoryAt == myHistory.size() - 1) {
-						myHistory.set(myHistoryAt, chatInput.getText());
-						chatInput.setText("");
-						myHistoryAt = myHistory.size();
-					} else if (myHistoryAt == myHistory.size()) {
-						String msg = chatInput.getText();
-						if (!msg.isEmpty()) {
-							myHistory.add(msg);
-							myHistoryAt = myHistory.size();
-							chatInput.setText("");
-						}
-					}
-					event.preventDefault();
-				}
-			}
-		});
+    {
+        liveTable.setStylePrimaryName("LiveLines");
+        vp.add(liveTable);
+    }
 
-		chatInput.addKeyPressHandler(new KeyPressHandler() {
-			public void onKeyPress(KeyPressEvent event) {
-				if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
-					newChatLine();
-					event.preventDefault();
-				}
-			}
-		});
-	}
+    private HorizontalPanel inputPanel = null;
 
-	private Button sendButton = new Button("Send");
+    private final InlineLabel nameLabel = new InlineLabel();
 
-	private int numFrozen = 0;
+    {
+        nameLabel.setWordWrap(false);
+    }
 
-	private int numLive = 0;
+    private TextBox chatInput = new TextBox();
 
-	private ChatUser user;
+    {
+        // Up and down arrows to browse what I've written earlier.
+        chatInput.addKeyDownHandler(new KeyDownHandler() {
 
-	{
-		sendButton.setWidth("60px");
-		sendButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				newChatLine();
-			}
-		});
-	}
+            @Override
+            public void onKeyDown(KeyDownEvent event) {
+                if (event.isUpArrow()) {
+                    if (myHistoryAt > 0) {
+                        String text = chatInput.getText();
+                        if (!text.isEmpty()) {
+                            if (myHistoryAt == myHistory.size()) {
+                                myHistory.add(text);
+                            }
+                            else {
+                                myHistory.set(myHistoryAt, text);
+                            }
+                        }
 
-	private boolean newChatLine() {
-		if (!chatInput.getText().isEmpty()) {
-			String msg = chatInput.getText();
-			chatInput.setText("");
-			myHistory.add(msg);
-			myHistoryAt = myHistory.size();
-			addLiveLine(msg);
-			return true;
-		}
-		return false;
-	}
+                        String msg = myHistory.get(--myHistoryAt);
+                        chatInput.setText(msg);
+                        chatInput.setCursorPos(msg.length());
+                    }
+                    event.preventDefault();
 
-	private void addLiveLine(String msg) {
-		ChatLine line = new ChatLine(msg, user);
-		addLiveLine(line);
+                }
+                else if (event.isDownArrow()) {
+                    if (myHistoryAt < myHistory.size() - 1) {
+                        myHistory.set(myHistoryAt, chatInput.getText());
+                        String msg = myHistory.get(++myHistoryAt);
+                        chatInput.setText(msg);
+                        chatInput.setCursorPos(msg.length());
+                    }
+                    else if (myHistoryAt == myHistory.size() - 1) {
+                        myHistory.set(myHistoryAt, chatInput.getText());
+                        chatInput.setText("");
+                        myHistoryAt = myHistory.size();
+                    }
+                    else if (myHistoryAt == myHistory.size()) {
+                        String msg = chatInput.getText();
+                        if (!msg.isEmpty()) {
+                            myHistory.add(msg);
+                            myHistoryAt = myHistory.size();
+                            chatInput.setText("");
+                        }
+                    }
+                    event.preventDefault();
+                }
+            }
+        });
 
-	}
+        chatInput.addKeyPressHandler(new KeyPressHandler() {
+            @Override
+            public void onKeyPress(KeyPressEvent event) {
+                if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
+                    newChatLine();
+                    event.preventDefault();
+                }
+            }
+        });
+    }
 
-	public void setShowSendButton(boolean show) {
-		sendButton.setVisible(show);
-	}
+    private final Button sendButton = new Button("Send");
 
-	public void setShowMyNick(boolean show) {
-		nameLabel.setVisible(show);
-	}
+    private int numFrozen = 0;
 
-	private LinkedList<ChatLine> liveLines = new LinkedList<ChatLine>();
-	private LinkedList<ChatLine> frozenLines = new LinkedList<ChatLine>();
+    private int numLive = 0;
 
-	public ChatBoxWidget() {
-		super(Style.Unit.PX);
+    private ChatUser user;
 
-		setStylePrimaryName(CLASSNAME);
+    {
+        sendButton.setWidth("60px");
+        sendButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                newChatLine();
+            }
+        });
+    }
 
-		createInputPanel();
-		this.add(chatPanel);
+    private boolean newChatLine() {
+        if (!chatInput.getText().isEmpty()) {
+            String msg = chatInput.getText();
+            chatInput.setText("");
+            myHistory.add(msg);
+            myHistoryAt = myHistory.size();
+            addLiveLine(msg);
+            return true;
+        }
+        return false;
+    }
 
-		setEnabled(false);
-	}
+    private void addLiveLine(String msg) {
+        ChatLine line = new ChatLine(msg, user);
+        addLiveLine(line);
 
-	private void createInputPanel() {
-		inputPanel = new HorizontalPanel();
-		inputPanel.setWidth("100%");
-		inputPanel.setHeight("100%");
+    }
 
-		chatInput.setWidth("100%");
+    public void setShowSendButton(boolean show) {
+        sendButton.setVisible(show);
+    }
 
-		SimplePanel spacer = new SimplePanel();
-		spacer.setWidth("10px");
+    public void setShowMyNick(boolean show) {
+        nameLabel.setVisible(show);
+    }
 
-		inputPanel.add(nameLabel);
-		inputPanel.add(chatInput);
-		inputPanel.add(spacer);
-		inputPanel.add(sendButton);
+    private final LinkedList<ChatLine> liveLines = new LinkedList<ChatLine>();
+    private final LinkedList<ChatLine> frozenLines = new LinkedList<ChatLine>();
 
-		inputPanel.setCellWidth(chatInput, "100%");
+    public ChatBoxWidget() {
+        super(Style.Unit.PX);
 
-		inputPanel.setCellVerticalAlignment(nameLabel,
-				HasVerticalAlignment.ALIGN_MIDDLE);
-		inputPanel.setCellVerticalAlignment(chatInput,
-				HasVerticalAlignment.ALIGN_MIDDLE);
-		inputPanel.setCellVerticalAlignment(sendButton,
-				HasVerticalAlignment.ALIGN_MIDDLE);
+        setStylePrimaryName(CLASSNAME);
 
-		this.addSouth(inputPanel, 28);
-	}
+        createInputPanel();
+        this.add(chatPanel);
 
-	private void fireLiveLineAdded(ChatLine line) {
-		for (TextInputListener til : tiListeners) {
-			til.liveLineAdded(line);
-		}
-	}
+        setEnabled(false);
+    }
 
-	public void addFrozenLine(ChatLine line) {
-		chatTable.setWidget(numFrozen, 0, new ChatWidgetLine(line, this));
-		frozenLines.add(line);
-		scrollToBottom();
-		++numFrozen;
-	}
+    private void createInputPanel() {
+        inputPanel = new HorizontalPanel();
+        inputPanel.setWidth("100%");
+        inputPanel.setHeight("100%");
 
-	private void addLiveLine(ChatLine line) {
-		liveTable.setWidget(numLive, 0, new ChatWidgetLine(line, this));
-		liveLines.add(line);
-		scrollToBottom();
-		++numLive;
-		fireLiveLineAdded(line);
-	}
+        chatInput.setWidth("100%");
 
-	private void scrollToBottom() {
-		// http://stackoverflow.com/questions/6484319/scrollpanel-scrolltobottom-not-working-as-expected
-		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-			@Override
-			public void execute() {
-				chatPanel.scrollToBottom();
-			}
-		});
-	}
+        SimplePanel spacer = new SimplePanel();
+        spacer.setWidth("10px");
 
-	public List<ChatLine> getLiveLines() {
-		return new ArrayList<ChatLine>(liveLines);
-	}
+        inputPanel.add(nameLabel);
+        inputPanel.add(chatInput);
+        inputPanel.add(spacer);
+        inputPanel.add(sendButton);
 
-	public void clicked(String itemId) {
-		for (ChatCLickListener ccl : ccListeners) {
-			ccl.itemClicked(itemId);
-		}
-	}
+        inputPanel.setCellWidth(chatInput, "100%");
 
-	public void clickedUser(String userId) {
-		for (ChatCLickListener ccl : ccListeners) {
-			ccl.userClicked(userId);
-		}
-	}
+        inputPanel.setCellVerticalAlignment(nameLabel,
+                                            HasVerticalAlignment.ALIGN_MIDDLE);
+        inputPanel.setCellVerticalAlignment(chatInput,
+                                            HasVerticalAlignment.ALIGN_MIDDLE);
+        inputPanel.setCellVerticalAlignment(sendButton,
+                                            HasVerticalAlignment.ALIGN_MIDDLE);
 
-	private void setEnabled(boolean enable) {
-		inputPanel.setVisible(enable);
-	}
+        this.addSouth(inputPanel, 28);
+    }
 
-	public void setUser(ChatBoxState.User u) {
-		ChatUser user = ChatBoxState.User.convert(u);
-		if (sameUser(this.user, user)) {
-			return;
-		}
-		if (user == null) {
-			setEnabled(false);
-		} else {
-			nameLabel.setText(user.getName() + ":");
-			nameLabel.setStylePrimaryName(user.getStyle());
-			setEnabled(true);
-		}
-		this.user = user;
-		scrollToBottom(); // ?
-	}
+    private void fireLiveLineAdded(ChatLine line) {
+        for (TextInputListener til : tiListeners) {
+            til.liveLineAdded(line);
+        }
+    }
 
-	private void freeze(int freezeLive) {
-		// extra check for initial
-		if (numLive == 0) {
-			return;
-		}
+    public void addFrozenLine(ChatLine line) {
+        chatTable.setWidget(numFrozen, 0, new ChatWidgetLine(line, this));
+        frozenLines.add(line);
+        scrollToBottom();
+        ++numFrozen;
+    }
 
-		for (int i = 0; i < freezeLive; ++i) {
-			liveLines.remove(0);
-			liveTable.removeRow(0);
-			--numLive;
-		}
-	}
+    private void addLiveLine(ChatLine line) {
+        liveTable.setWidget(numLive, 0, new ChatWidgetLine(line, this));
+        liveLines.add(line);
+        scrollToBottom();
+        ++numLive;
+        fireLiveLineAdded(line);
+    }
 
-	private static boolean sameUser(ChatUser u1, ChatUser u2) {
-		return u1 == null ? u2 == null : u1.equals(u2);
-	}
+    private void scrollToBottom() {
+        // http://stackoverflow.com/questions/6484319/scrollpanel-scrolltobottom-not-working-as-expected
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                chatPanel.scrollToBottom();
+            }
+        });
+    }
 
-	public void addFrozenLines(List<ChatBoxState.Line> lines) {
-		int mine = 0;
-		for (ChatBoxState.Line line : lines) {
-			ChatLine li = ChatBoxState.Line.convert(line);
+    public List<ChatLine> getLiveLines() {
+        return new ArrayList<ChatLine>(liveLines);
+    }
 
-			// assuming all the live lines by the user are added on this
-			// client... XXX
-			if (user != null && user.equals(li.getUser())) {
-				mine++;
-			}
-			frozenLines.add(li);
-			chatTable.setWidget(numFrozen++, 0, new ChatWidgetLine(li, this));
-		}
-		freeze(mine);
-		scrollToBottom();
-	}
+    public void clicked(String itemId) {
+        for (ChatCLickListener ccl : ccListeners) {
+            ccl.itemClicked(itemId);
+        }
+    }
 
-	public void focusToInputField() {
-		chatInput.setFocus(true);
-	}
+    public void clickedUser(String userId) {
+        for (ChatCLickListener ccl : ccListeners) {
+            ccl.userClicked(userId);
+        }
+    }
+
+    private void setEnabled(boolean enable) {
+        inputPanel.setVisible(enable);
+    }
+
+    public void setUser(ChatBoxState.User u) {
+        ChatUser chatUser = ChatBoxState.User.convert(u);
+        if (sameUser(this.user, chatUser)) {
+            return;
+        }
+        if (chatUser == null) {
+            setEnabled(false);
+        }
+        else {
+            nameLabel.setText(chatUser.getName() + ":");
+            nameLabel.setStylePrimaryName(chatUser.getOuterStyle());
+            setEnabled(true);
+        }
+        this.user = chatUser;
+        scrollToBottom(); // ?
+    }
+
+    private void freeze(int freezeLive) {
+        // extra check for initial
+        if (numLive == 0) {
+            return;
+        }
+
+        for (int i = 0; i < freezeLive; ++i) {
+            liveLines.remove(0);
+            liveTable.removeRow(0);
+            --numLive;
+        }
+    }
+
+    private static boolean sameUser(ChatUser u1, ChatUser u2) {
+        return u1 == null ? u2 == null : u1.equals(u2);
+    }
+
+    public void addFrozenLines(List<ChatBoxState.Line> lines) {
+        int mine = 0;
+        for (ChatBoxState.Line line : lines) {
+            ChatLine li = ChatBoxState.Line.convert(line);
+
+            // assuming all the live lines by the user are added on this
+            // client... XXX
+            if (user != null && user.equals(li.getUser())) {
+                mine++;
+            }
+            frozenLines.add(li);
+            chatTable.setWidget(numFrozen++, 0, new ChatWidgetLine(li, this));
+        }
+        freeze(mine);
+        scrollToBottom();
+    }
+
+    public void focusToInputField() {
+        chatInput.setFocus(true);
+    }
 
 }
