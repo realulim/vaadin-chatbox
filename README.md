@@ -1,6 +1,5 @@
-Chatbox component for Vaadin
-============================
+## A fork of the Chatbox component for Vaadin
 
-Available as an [add-on in Vaadin Directory](http://vaadin.com/addon/chatbox).
+The original Vaadin Chatbox is available as an [add-on in Vaadin Directory](http://vaadin.com/addon/chatbox).
 
-[Online Demo](http://130.230.142.91:8080/chatbox/)
+This fork adds a timestamp to every chat line and provides a magnification button for small chatboxes.
