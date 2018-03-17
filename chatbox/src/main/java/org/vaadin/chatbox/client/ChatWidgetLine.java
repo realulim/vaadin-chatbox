@@ -90,7 +90,7 @@ public final class ChatWidgetLine extends FlowPanel {
             label.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    parent.clicked(itemId);
+                    parent.clickedItem(itemId);
                 }
             });
         }

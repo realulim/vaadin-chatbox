@@ -2,22 +2,24 @@ package org.vaadin.chatbox.client;
 
 import java.util.List;
 
-import org.vaadin.chatbox.ChatBox;
-import org.vaadin.chatbox.client.ChatBoxWidget.TextInputListener;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Widget;
+
 import com.vaadin.client.communication.RpcProxy;
 import com.vaadin.client.communication.StateChangeEvent;
 import com.vaadin.client.ui.AbstractComponentConnector;
 import com.vaadin.shared.ui.Connect;
+
+import org.vaadin.chatbox.ChatBox;
+import org.vaadin.chatbox.client.ChatBoxWidget.ChatCLickListener;
+import org.vaadin.chatbox.client.ChatBoxWidget.TextInputListener;
 
 // Connector binds client-side widget class to server-side component class
 // Connector lives in the client and the @Connect annotation specifies the
 // corresponding server-side component
 @SuppressWarnings("serial")
 @Connect(ChatBox.class)
-public final class ChatBoxConnector extends AbstractComponentConnector implements TextInputListener {
+public final class ChatBoxConnector extends AbstractComponentConnector implements TextInputListener, ChatCLickListener {
 
     // ServerRpc is used to send events to server. Communication implementation
     // is automatically created here
@@ -45,6 +47,7 @@ public final class ChatBoxConnector extends AbstractComponentConnector implement
     protected Widget createWidget() {
         widget = GWT.create(ChatBoxWidget.class);
         widget.addTextInputListener(this);
+        widget.addClickListener(this);
         return widget;
     }
 
@@ -69,6 +72,18 @@ public final class ChatBoxConnector extends AbstractComponentConnector implement
     @Override
     public void liveLineAdded(ChatLine line) {
         rpc.lineAdded(ChatBoxState.Line.convert(line));
+    }
+
+    @Override
+    public void userClicked(String userId) {
+        System.out.println("User clicked: " + userId);
+        rpc.chatboxClicked();
+    }
+
+    @Override
+    public void itemClicked(String itemId) {
+        System.out.println("Item clicked: " + itemId);
+        rpc.chatboxClicked();
     }
 
 }

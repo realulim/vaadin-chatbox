@@ -40,15 +40,13 @@ public final class ChatBoxWidget extends DockLayoutPanel {
     }
 
     public interface ChatCLickListener {
-
         public void userClicked(String userId);
-
         public void itemClicked(String itemId);
     }
 
     private final LinkedList<ChatCLickListener> ccListeners = new LinkedList<ChatCLickListener>();
 
-    public void addListener(ChatCLickListener li) {
+    public void addClickListener(ChatCLickListener li) {
         ccListeners.add(li);
     }
 
@@ -270,7 +268,7 @@ public final class ChatBoxWidget extends DockLayoutPanel {
         return new ArrayList<ChatLine>(liveLines);
     }
 
-    public void clicked(String itemId) {
+    public void clickedItem(String itemId) {
         for (ChatCLickListener ccl : ccListeners) {
             ccl.itemClicked(itemId);
         }

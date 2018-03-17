@@ -2,6 +2,10 @@ package org.vaadin.chatbox;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+
+import com.vaadin.annotations.StyleSheet;
+import com.vaadin.server.VaadinSession;
 
 import org.vaadin.chatbox.SharedChat.ChatListener;
 import org.vaadin.chatbox.client.ChatBoxClientRpc;
@@ -10,18 +14,21 @@ import org.vaadin.chatbox.client.ChatBoxState;
 import org.vaadin.chatbox.client.ChatLine;
 import org.vaadin.chatbox.client.ChatUser;
 
-import com.vaadin.annotations.StyleSheet;
-import com.vaadin.server.VaadinSession;
-
 @StyleSheet("chatbox.css")
 @SuppressWarnings("serial")
 public final class ChatBox extends com.vaadin.ui.AbstractComponent implements ChatListener {
 
     // To process events from the client, we implement ServerRpc
     private final ChatBoxServerRpc rpc = new ChatBoxServerRpc() {
+
         @Override
         public void lineAdded(ChatBoxState.Line line) {
             chat.addLine(ChatBoxState.Line.convert(line));
+        }
+
+        @Override
+        public void chatboxClicked() {
+            Logger.getAnonymousLogger().info("Chatbox clicked");
         }
     };
 
