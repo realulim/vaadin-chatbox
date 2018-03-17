@@ -14,7 +14,6 @@ public class SharedChat {
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
 
     public interface ChatListener {
-
         public void lineAdded(ChatLine line);
     }
 
@@ -64,4 +63,5 @@ public class SharedChat {
             }
         });
     }
+
 }
