@@ -20,12 +20,12 @@ public final class ChatWidgetLine extends FlowPanel {
 
     private final DateTimeFormat dtf = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
     private final ChatBoxWidget parent;
-    private final boolean clickableUsers = true;
 
     public ChatWidgetLine(ChatLine line, ChatBoxWidget parent) {
         this.parent = parent;
         if (line.getUser() != null) {
-            add(createUserLabel(line));
+            add(createTimestampLabel(line));
+            add(createUserLabel(line.getUser()));
             add(createLabel(": ", line.getUser().getInnerStyle()));
         }
         String style = (line.getUser() == null) ? "infotext" : "chattext";
@@ -97,25 +97,28 @@ public final class ChatWidgetLine extends FlowPanel {
         return label;
     }
 
+    private InlineLabel createTimestampLabel(final ChatLine line) {
+        InlineLabel label = new InlineLabel("[" + dtf.format(line.getTimestamp()) + "] ");
+        label.setStylePrimaryName(line.getUser().getInnerStyle());
+        return label;
+    }
+
+    private Anchor createUserLabel(final ChatUser user) {
+        Anchor label = new Anchor(user.getName());
+        label.setStylePrimaryName(user.getInnerStyle());
+        label.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                parent.clickedUser(user.getId());
+            }
+        });
+        return label;
+    }
+
     private static InlineLabel createLabel(String text, String style) {
         InlineLabel label = new InlineLabel(text);
         if (style != null) {
             label.setStylePrimaryName(style);
-        }
-        return label;
-    }
-
-    private InlineLabel createUserLabel(final ChatLine line) {
-        final ChatUser user = line.getUser();
-        InlineLabel label = new InlineLabel("[" + dtf.format(line.getTimestamp()) + "] " + user.getName());
-        label.setStylePrimaryName(user.getInnerStyle());
-        if (clickableUsers) {
-            label.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    parent.clickedUser(user.getId());
-                }
-            });
         }
         return label;
     }
