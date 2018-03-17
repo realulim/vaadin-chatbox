@@ -17,60 +17,58 @@ import com.vaadin.shared.ui.Connect;
 // corresponding server-side component
 @SuppressWarnings("serial")
 @Connect(ChatBox.class)
-public class ChatBoxConnector extends AbstractComponentConnector implements TextInputListener {
+public final class ChatBoxConnector extends AbstractComponentConnector implements TextInputListener {
 
-	// ServerRpc is used to send events to server. Communication implementation
-	// is automatically created here
-	private ChatBoxServerRpc rpc = RpcProxy.create(ChatBoxServerRpc.class, this);
-	private ChatBoxWidget widget;
+    // ServerRpc is used to send events to server. Communication implementation
+    // is automatically created here
+    private final ChatBoxServerRpc rpc = RpcProxy.create(ChatBoxServerRpc.class, this);
+    private ChatBoxWidget widget;
 
-	public ChatBoxConnector() {
-		
-		// To receive RPC events from server, we register ClientRpc implementation 
-		registerRpc(ChatBoxClientRpc.class, new ChatBoxClientRpc() {
-			@Override
-			public void addLines(List<ChatBoxState.Line> lines) {
-				getWidget().addFrozenLines(lines);
-			}
+    public ChatBoxConnector() {
 
-			@Override
-			public void focus() {
-				getWidget().focusToInputField();
-			}
-		});
-		
-	}
+        // To receive RPC events from server, we register ClientRpc implementation 
+        registerRpc(ChatBoxClientRpc.class, new ChatBoxClientRpc() {
+                @Override
+                public void addLines(List<ChatBoxState.Line> lines) {
+                    getWidget().addFrozenLines(lines);
+                }
 
-	// We must implement createWidget() to create correct type of widget
-	@Override
-	protected Widget createWidget() {
-		widget = GWT.create(ChatBoxWidget.class);
-		widget.addTextInputListener(this);
-		return widget;
-	}
+                @Override
+                public void focus() {
+                    getWidget().focusToInputField();
+                }
+            });
+    }
 
-	
-	// We must implement getWidget() to cast to correct type
-	@Override
-	public ChatBoxWidget getWidget() {
-		return (ChatBoxWidget) super.getWidget();
-	}
+    // We must implement createWidget() to create correct type of widget
+    @Override
+    protected Widget createWidget() {
+        widget = GWT.create(ChatBoxWidget.class);
+        widget.addTextInputListener(this);
+        return widget;
+    }
 
-	// We must implement getState() to cast to correct type
-	@Override
-	public ChatBoxState getState() {
-		return (ChatBoxState) super.getState();
-	}
+    // We must implement getWidget() to cast to correct type
+    @Override
+    public ChatBoxWidget getWidget() {
+        return (ChatBoxWidget) super.getWidget();
+    }
 
-	// Whenever the state changes in the server-side, this method is called
-	@Override
-	public void onStateChanged(StateChangeEvent stateChangeEvent) {
-		super.onStateChanged(stateChangeEvent);
-	}
+    // We must implement getState() to cast to correct type
+    @Override
+    public ChatBoxState getState() {
+        return (ChatBoxState) super.getState();
+    }
 
-	@Override
-	public void liveLineAdded(ChatLine line) {
-		rpc.lineAdded(ChatBoxState.Line.convert(line));
-	}
+    // Whenever the state changes in the server-side, this method is called
+    @Override
+    public void onStateChanged(StateChangeEvent stateChangeEvent) {
+        super.onStateChanged(stateChangeEvent);
+    }
+
+    @Override
+    public void liveLineAdded(ChatLine line) {
+        rpc.lineAdded(ChatBoxState.Line.convert(line));
+    }
 
 }

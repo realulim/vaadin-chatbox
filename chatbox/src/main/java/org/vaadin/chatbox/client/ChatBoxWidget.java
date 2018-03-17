@@ -24,10 +24,9 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class ChatBoxWidget extends DockLayoutPanel {
+public final class ChatBoxWidget extends DockLayoutPanel {
 
     public interface TextInputListener {
-
         public void liveLineAdded(ChatLine line);
     }
 
@@ -149,6 +148,7 @@ public class ChatBoxWidget extends DockLayoutPanel {
                 }
             }
         });
+
     }
 
     private final Button sendButton = new Button("Send");
