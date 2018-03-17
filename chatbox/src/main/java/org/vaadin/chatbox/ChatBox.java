@@ -2,7 +2,6 @@ package org.vaadin.chatbox;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import com.vaadin.annotations.StyleSheet;
 import com.vaadin.server.VaadinSession;
@@ -28,9 +27,25 @@ public final class ChatBox extends com.vaadin.ui.AbstractComponent implements Ch
 
         @Override
         public void chatboxClicked() {
-            Logger.getAnonymousLogger().info("Chatbox clicked");
+            for (ClickListener listener : clickListeners) {
+                listener.chatBoxClicked();
+            }
         }
     };
+
+    public interface ClickListener {
+        public void chatBoxClicked();
+    }
+
+    private final List<ClickListener> clickListeners = new ArrayList<ClickListener>();
+
+    public void addListener(ClickListener listener) {
+        clickListeners.add(listener);
+    }
+
+    public void removeListener(ClickListener listener) {
+        clickListeners.remove(listener);
+    }
 
     private SharedChat chat;
 
@@ -38,8 +53,8 @@ public final class ChatBox extends com.vaadin.ui.AbstractComponent implements Ch
 
     public ChatBox(SharedChat chat) {
         super();
-        setWidth("200px"); // ?
-        setHeight("200px"); // ?
+        setWidth("200px"); // default
+        setHeight("200px"); // default
         this.chat = chat;
         registerRpc(rpc);
     }
