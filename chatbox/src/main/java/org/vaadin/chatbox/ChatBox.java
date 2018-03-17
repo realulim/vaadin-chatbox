@@ -39,11 +39,11 @@ public final class ChatBox extends com.vaadin.ui.AbstractComponent implements Ch
 
     private final List<ClickListener> clickListeners = new ArrayList<ClickListener>();
 
-    public void addListener(ClickListener listener) {
+    public void addClickListener(ClickListener listener) {
         clickListeners.add(listener);
     }
 
-    public void removeListener(ClickListener listener) {
+    public void removeClickListener(ClickListener listener) {
         clickListeners.remove(listener);
     }
 
